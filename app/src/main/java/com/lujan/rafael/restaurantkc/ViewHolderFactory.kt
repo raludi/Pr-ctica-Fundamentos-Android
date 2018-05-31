@@ -24,11 +24,11 @@ object ViewHolderFactory {
         var price: TextView = view.findViewById(R.id.txt_food_price)
         var image: ImageView = view.findViewById(R.id.food_image)
 
-        override fun bind(food: Food) {
-            name.text = food.name
-            description.text = food.description
-            price.text = food.price.toString()
-            image.setImageResource(food.image)
+        override fun bind(data: Food) {
+            name.text = data.name
+            description.text = data.description
+            price.text = data.price.toString() + "€"
+            image.setImageResource(data.image)
         }
     }
 
@@ -36,8 +36,8 @@ object ViewHolderFactory {
         var name: TextView = view.findViewById(R.id.table_text)
         var image: ImageView = view.findViewById(R.id.table_image)
 
-        override fun bind(table: String) {
-            name.text = table
+        override fun bind(data: String) {
+            name.text = data
             image.setImageResource(R.drawable.table)
         }
     }

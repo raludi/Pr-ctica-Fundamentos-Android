@@ -3,4 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="total_bill">CUENTA TOTAL: %.2f €</string>
+    <string name="add_new_food">Añadir nuevo plato</string>
+    <string name="price_food">%.2f €</string>
 </resources>

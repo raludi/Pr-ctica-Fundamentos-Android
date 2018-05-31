@@ -1,44 +1,57 @@
 package com.lujan.rafael.restaurantkc.activities
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import com.lujan.rafael.restaurantkc.R
 import com.lujan.rafael.restaurantkc.fragments.FoodsFragment
+import com.lujan.rafael.restaurantkc.model.Food
+import com.lujan.rafael.restaurantkc.model.Order
 
-class FoodListActivity : AppCompatActivity() {
+class FoodListActivity : AppCompatActivity(), FoodsFragment.notifyChangeListener {
 
-    /*override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_food_list)
-        val adapter = object: GenericRecyclerAdapter<Any>(Foods.listFood) {
-            override fun clickItem(view: View, itemSelected: Any) {
-                val food = itemSelected as Food
-                val intent =  FoodDetailActivity.intent(view.context,food)
-                startActivity(intent)
-            }
 
-            override fun getViewHolder(view: View, viewType: Int): RecyclerView.ViewHolder {
-                return ViewHolderFactory.create(view, viewType)
-            }
-
-            override fun getLayoutId(): Int {
-                return R.layout.content_food_item
-            }
+    companion object {
+        val ARG_ORDER_LIST = "order_list"
+        val RETURNED_LIST = "order_return"
+        fun intent(context: Context, order: Order): Intent {
+            val intent = Intent(context, FoodListActivity::class.java)
+            intent.putExtra(ARG_ORDER_LIST, order)
+            return intent
         }
-        food_list.layoutManager = LinearLayoutManager(this)
-        food_list.adapter = adapter
-    }*/
+    }
+
+    lateinit var order: Order
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.foods_activity)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        order = intent.getSerializableExtra(ARG_ORDER_LIST) as Order
         if (supportFragmentManager.findFragmentById(R.id.foods_fragment) == null) {
-            // Añadiremos el fragment de forma dinámica
             val fragment = FoodsFragment.newInstance()
-
             supportFragmentManager.beginTransaction()
                     .add(R.id.foods_fragment, fragment)
                     .commit()
         }
+    }
+
+    override fun notifyListener(food: Food) {
+        order.addNewDish(food)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?) = when (item?.itemId) {
+        android.R.id.home -> {
+            val returnIntent = Intent()
+            returnIntent.putExtra(RETURNED_LIST, order)
+            setResult(Activity.RESULT_OK, returnIntent)
+            finish()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
 }
