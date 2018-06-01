@@ -4,17 +4,17 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.view.*
-import android.widget.Adapter
 import android.widget.ArrayAdapter
 import com.lujan.rafael.restaurantkc.R
 import com.lujan.rafael.restaurantkc.activities.FoodListActivity
-import com.lujan.rafael.restaurantkc.model.Food
 import com.lujan.rafael.restaurantkc.model.Order
 import kotlinx.android.synthetic.main.fragment_table_detail.*
 
 class TableDetailFragment: Fragment() {
+
     companion object {
         val ARG_DETAIL_ORDER = "arg_detail_order"
         fun newInstance(order: Order): Fragment = TableDetailFragment().apply {
@@ -24,13 +24,13 @@ class TableDetailFragment: Fragment() {
         }
     }
 
-
-    interface OnPayedListener {
-        fun OnPayedClickedListener()
+    interface OnEventOrderListener {
+        fun OnPayedClickedListener(orderPayed: Order)
+        fun OnBackClickedListener(orderBack: Order)
     }
 
     lateinit var order: Order
-    var payedListener: OnPayedListener? = null
+    var eventOrderListener: OnEventOrderListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,18 +45,29 @@ class TableDetailFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         order = arguments?.getSerializable(TableDetailFragment.ARG_DETAIL_ORDER) as Order
-        total_account.text = getString(R.string.total_bill, order.bill)
+        total_account.text = getString(R.string.total_bill, order.calculateBill())
         val adapter = ArrayAdapter(view.context, android.R.layout.simple_list_item_1, order.dishes)
         dishes_list.adapter = adapter
         pay_account_btn.setOnClickListener {
-            payedListener?.OnPayedClickedListener()
+            order.dishes = mutableListOf()
+            eventOrderListener?.OnPayedClickedListener(order)
         }
+
 
         reset_order_btn.setOnClickListener{
             total_account.text = getString(R.string.total_bill, 0F)
+            val oldUnit = order.dishes
             order.dishes = mutableListOf()
-            adapter.notifyDataSetChanged()
-            dishes_list.adapter = adapter
+            val adapterReset = ArrayAdapter(view.context, android.R.layout.simple_list_item_1, order.dishes)
+            dishes_list.adapter = adapterReset
+
+            Snackbar.make(view, "Lista de pedidos borrada", Snackbar.LENGTH_LONG)
+                    .setAction("Deshacer", {
+                        order.dishes = oldUnit
+                        val adapter = ArrayAdapter(view.context, android.R.layout.simple_list_item_1, order.dishes)
+                        dishes_list.adapter = adapter
+                    })
+                    .show()
         }
     }
 
@@ -72,31 +83,25 @@ class TableDetailFragment: Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        payedListener = null
+        eventOrderListener = null
     }
 
     fun commonAttach(activity: Activity?) {
-        if (activity is TableDetailFragment.OnPayedListener) {
-            payedListener = activity
-        } else payedListener = null
+        if (activity is TableDetailFragment.OnEventOrderListener) {
+            eventOrderListener = activity
+        } else eventOrderListener = null
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater?.inflate(R.menu.add_food_menu, menu)
-    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             val orderReturned = data?.getSerializableExtra(FoodListActivity.RETURNED_LIST) as Order
             order.dishes = orderReturned.dishes
-            val adapter = ArrayAdapter(view?.context, android.R.layout.simple_list_item_2, order.dishes)
+            val adapter = ArrayAdapter(view?.context, android.R.layout.simple_list_item_1, order.dishes)
             adapter.notifyDataSetChanged()
             dishes_list.adapter = adapter
-            var total = 0F
-            order.dishes.forEach {
-                total += it.price
-            }
+            val total = order.calculateBill()
             total_account.text = getString(R.string.total_bill, total)
         }
     }
@@ -107,6 +112,9 @@ class TableDetailFragment: Fragment() {
                 val intent = FoodListActivity.intent(view!!.context, order)
                 startActivityForResult(intent,1)
                 true
+            }
+            android.R.id.home -> {
+                eventOrderListener?.OnBackClickedListener(order)
             }
         }
         return super.onOptionsItemSelected(item)

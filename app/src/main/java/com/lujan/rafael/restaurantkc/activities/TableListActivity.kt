@@ -11,6 +11,8 @@ import com.lujan.rafael.restaurantkc.R
 import com.lujan.rafael.restaurantkc.ViewHolderFactory
 import com.lujan.rafael.restaurantkc.adapters.GenericRecyclerAdapter
 import com.lujan.rafael.restaurantkc.fragments.TablesFragment
+import com.lujan.rafael.restaurantkc.model.Food
+import com.lujan.rafael.restaurantkc.model.Order
 
 class TableListActivity : AppCompatActivity()  {
 

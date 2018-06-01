@@ -24,11 +24,22 @@ class TablesFragment: Fragment() {
         fun newInstance(): Fragment = TablesFragment()
     }
 
-    val tables: List<String> = listOf(
-            "Mesa 1", "Mesa 2", "Mesa 3", "Mesa 4",
-            "Mesa 5", "Mesa 6", "Mesa 7", "Mesa 8",
-            "Mesa 9", "Mesa 10"
+    var tableList: MutableList<Order> = mutableListOf(
+            Order(1, mutableListOf<Food>()),
+            Order(2, mutableListOf<Food>()),
+            Order(3, mutableListOf<Food>()),
+            Order(4, mutableListOf<Food>()),
+            Order(5, mutableListOf<Food>()),
+            Order(6, mutableListOf<Food>()),
+            Order(7, mutableListOf<Food>()),
+            Order(8, mutableListOf<Food>()),
+            Order(9, mutableListOf<Food>()),
+            Order(10, mutableListOf<Food>())
     )
+
+    val tables: List<Int> = listOf(
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+     )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_table_list, container, false)
@@ -38,9 +49,8 @@ class TablesFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val adapter = object: GenericRecyclerAdapter<Any>(tables) {
             override fun clickItem(view: View, itemSelected: Any) {
-                val nameTable = itemSelected as String
-                val emptyListFoods = mutableListOf<Food>()
-                val order = Order(nameTable, 0F, emptyListFoods)
+                val numberTable = itemSelected as Int
+                val order = tableList[numberTable - 1]
                 val intent = TableDetailActivity.intent(view.context, order)
                 startActivityForResult(intent,1)
             }
@@ -59,9 +69,18 @@ class TablesFragment: Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == Activity.RESULT_OK) {
-           println("Mesa libre")
+        val orderReturned: Order
+        when(resultCode){
+            Activity.RESULT_OK -> {
+                orderReturned = data?.getSerializableExtra(TableDetailActivity.ARG_ORDER_PAYED) as Order
+                tableList[orderReturned.table - 1] = orderReturned
+            }
+            Activity.RESULT_CANCELED -> {
+                orderReturned = data?.getSerializableExtra(TableDetailActivity.ARG_ORDER_BACK) as Order
+                tableList[orderReturned.table - 1] = orderReturned
+            }
         }
     }
 
 }
+

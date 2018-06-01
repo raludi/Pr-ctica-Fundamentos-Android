@@ -2,7 +2,7 @@ package com.lujan.rafael.restaurantkc.model
 
 import java.io.Serializable
 
-class Order(val table: String, var bill: Float, var dishes: MutableList<Food>): Serializable {
+class Order(val table: Int, var dishes: MutableList<Food>): Serializable {
 
     fun addNewDish(food: Food) {
         this.dishes.add(food)

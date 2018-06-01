@@ -61,6 +61,7 @@ abstract class GenericRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.Vie
     }
 
     abstract fun clickItem(view: View, itemSelected: T)
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as Binder<T>).bind(listItems[position])
         holder.itemView.setOnClickListener {

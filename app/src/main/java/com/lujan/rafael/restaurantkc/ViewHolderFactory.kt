@@ -23,7 +23,6 @@ object ViewHolderFactory {
         var description: TextView = view.findViewById(R.id.txt_food_description)
         var price: TextView = view.findViewById(R.id.txt_food_price)
         var image: ImageView = view.findViewById(R.id.food_image)
-
         override fun bind(data: Food) {
             name.text = data.name
             description.text = data.description
@@ -32,12 +31,12 @@ object ViewHolderFactory {
         }
     }
 
-    class TableViewHolder(view: View): RecyclerView.ViewHolder(view), GenericRecyclerAdapter.Binder<String> {
+    class TableViewHolder(view: View): RecyclerView.ViewHolder(view), GenericRecyclerAdapter.Binder<Int> {
         var name: TextView = view.findViewById(R.id.table_text)
         var image: ImageView = view.findViewById(R.id.table_image)
 
-        override fun bind(data: String) {
-            name.text = data
+        override fun bind(data: Int) {
+            name.text = "Mesa " + data.toString()
             image.setImageResource(R.drawable.table)
         }
     }
